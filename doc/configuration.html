@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>PHP Schema</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/highlight.dark.css">
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<header class="navbar navbar-default navbar-fixed-top">
+
+    <a class="navbar-brand" href="http://php-schema.dunglas.com/">
+        PHP Schema
+        <small class="hidden-xs hidden-sm">
+            Generate PHP data model from Schema.org vocable
+        </small>
+    </a>
+
+            <a href="https://github.com/dunglas/php-schema">
+            <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png">
+        </a>
+    
+</header>
+
+<main class="container-fluid">
+    <div class="row">
+
+        
+            <nav id="sidebar" class="col-sm-3 col-lg-2" role="navigation">
+
+                <ul class="nav nav-pills nav-stacked">
+                                            <li class="">
+                            <a href="http://php-schema.dunglas.com/">
+                                Home
+                            </a>
+                        </li>
+                                            <li class="">
+                            <a href="http://php-schema.dunglas.com/doc/getting-started.html">
+                                Getting started
+                            </a>
+                        </li>
+                                            <li class="">
+                            <a href="http://php-schema.dunglas.com/doc/configuration.html">
+                                Configuration
+                            </a>
+                        </li>
+                                            <li class="">
+                            <a href="http://github.com/dunglas/php-schema">
+                                <i class="fa fa-github"></i> GitHub
+                            </a>
+                        </li>
+                                    </ul>
+
+            </nav>
+
+        
+        <section id="content" class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+            <h1>Configuration</h1>
+<p>The following options can be used in the configuration file.</p>
+<h2>Customizing PHP namespaces</h2>
+<p>Namespaces of generated PHP classes can be set globally, respectively for entities, enumerations and interfaces (if used
+with Doctrine Resolve Target Entity Listener option).</p>
+<p>Example:</p>
+<pre><code class="language-yml">namespaces:
+  entity:               "Dunglas\EcommerceBundle\Entity"
+  enum:                 "Dunglas\EcommerceBundle\Enum"
+  interface:            "Dunglas\EcommerceBundle\Model"</code></pre>
+<p>Namespaces can also be specified for a specific type. It will take precedence over any globally configured namespace.</p>
+<p>Example:</p>
+<pre><code class="language-yml">types:
+  Thing:
+    namespaces:
+      entity: "Dunglas\CoreBundle\Entity" # Namespace for the Thing entity (works for enumerations too)
+      interface: "Schema\Model" # Namespace of the related interface</code></pre>
+<h2>Forcing a field range</h2>
+<p>Schema.org allows a property to have several types. However, the generator allows only one type by property. If not configured,
+it will use the first defined type.
+The <code>range</code> option is useful to set the type of a given property. It can also be used to force a type (even if not in the
+Schema.org definition).</p>
+<p>Example:</p>
+<pre><code class="language-yml">types:
+  Brand:
+    properties:
+      logo: { range: "ImageObject" } # Force the range of the logo propery to ImageObject (can also be URL according to Schema.org)
+
+  PostalAddress:
+    properties:
+      addressCountry: { range: "Text" } # Force the type to Text instead of Country</code></pre>
+<h2>Forcing a field cardinality</h2>
+<p>The cardinality of a property is automatically guessed. The <code>cardinality</code> option allows to override the guessed value.
+Supported cardinalities are:</p>
+<ul>
+<li><code>(0..1)</code>: scalar, not required</li>
+<li><code>(0..*)</code>: array, not required</li>
+<li><code>(1..1)</code>: scalar, required</li>
+<li><code>(1..*)</code>: array, required</li>
+</ul>
+<p>Cardinalities are enforced by the class generator, the Doctrine ORM generator and the Symfony validation generator.</p>
+<p>Example:</p>
+<pre><code class="language-yml">types:
+  Product:
+    properties:
+      sku:
+        cardinality: "(0..1)"</code></pre>
+<h2>Forcing (or disabling) a class parent</h2>
+<p>Override the guessed class hierarchy of a given type with this option.</p>
+<p>Example:</p>
+<pre><code class="language-yml">  ImageObject:
+    parent: Thing # Force the parent to be Thing instead of CreativeWork &gt; MediaObject
+    properties: ~
+  Drug:
+    parent: false # No parent</code></pre>
+<h2>Author PHPDoc</h2>
+<p>Add a <code>@author</code> PHPDoc annotation to class' DocBlock.</p>
+<p>Example:</p>
+<pre><code class="language-yml">author: "Kévin Dunglas &lt;kevin@les-tilleuls.coop&gt;"</code></pre>
+<h2>Disabling generators and creating custom ones</h2>
+<p>By default, all generators are enabled. You can specify the list of generators to use with the <code>generators</code> option.</p>
+<p>Example (enabling only the PHPDoc generator):</p>
+<pre><code class="language-yml">annotationGenerators:
+    - SchemaOrgModel\AnnotationGenerator\PhpDocAnnotationGenerator</code></pre>
+<p>You can write your generators by implementing the <a href="src/SchemaOrgModel/AnnotationGenerator/AnnotationGeneratorInterface">AnnotationGeneratorInterface</a>.
+The <a href="src/SchemaOrgModel/AnnotationGenerator/AbstractAnnotationGenerator">AbstractAnnotationGenerator</a> provides helper methods
+useful when creating your own generators.</p>
+<p>Enabling a custom generator and the PHPDoc generator:</p>
+<pre><code class="language-yml">annotationGenerators:
+  - SchemaOrgModel\AnnotationGenerator\PhpDocAnnotationGenerator
+  - Acme\Generators\MyGenerator</code></pre>
+<h2>Disabling <code>id</code> generator</h2>
+<p>By default, the generator add a property called <code>id</code> not provided by Schema.org. This useful when using generated entity
+with an ORM or an ODM.
+This behavior can be disabled with the following setting:</p>
+<pre><code class="language-yml">generateId: false</code></pre>
+<h2>Disabling usage of Doctrine collection</h2>
+<p>By default, the generator use classes provided by the <a href="https://github.com/doctrine/collections">Doctrine Collections</a> library
+to store collections of entities. This is useful (and required) when using Doctrine ORM or Doctrine ODM.
+This behavior can be disabled (to fallback to standard arrays) with the following setting:</p>
+<pre><code class="language-yml">useDoctrineCollection: false</code></pre>
+<h2>Custom field visibility</h2>
+<p>Generated fields have a <code>private</code> visibility and are exposed through getters and setters.
+The default visibility can be changed with the <code>fieldVisibility</code> otion.</p>
+<p>Example:</p>
+<pre><code class="language-yml">fieldVisibility: "protected"</code></pre>
+<h2>Forcing Doctrine inheritance mapping annotation</h2>
+<p>The standard behavior of the generator is to use the <code>@MappedSuperclass</code> Doctrine annotation for classes with children and
+<code>@Entity</code> for classes with no child.</p>
+<p>The inheritance annotation can be forced for a given type like the following:</p>
+<pre><code class="language-yml">types:
+  Product:
+    doctrine:
+      inheritanceMapping: "@MappedSuperclass"</code></pre>
+<p><em>This setting is only relevant when using the Doctrine ORM generator.</em></p>
+<h2>Interfaces and Doctrine Resolve Target Entity Listener</h2>
+<p><a href="http://doctrine-orm.readthedocs.org/en/latest/cookbook/resolve-target-entity-listener.html"><code>ResolveTargetEntityListener</code></a>
+is a feature of Doctrine to keep modules independent. It allows to specify interfaces and <code>abstract</code> classes in relation
+mappings.</p>
+<p>If you set the option <code>useInterface</code> to true, the generator will generate an interface corresponding to each generated
+entity and will use them in relation mappings.</p>
+<h2>Custom schemas</h2>
+<p>The generator can use your own schema definitions. They must be wrote in RDFa and follow the format of the <a href="http://schema.org/docs/schema_org_rdfa.html">Schema.org's
+definition</a>. This is useful to document your <a href="http://schema.org/docs/extension.html">Schema.org extensions</a> and use them
+to generate the PHP data model of your application.</p>
+<p>Example:</p>
+<pre><code class="language-yml">rdfa:
+  - https://raw.githubusercontent.com/rvguha/schemaorg/master/data/schema.rdfa # Experimental version of Schema.org
+  - http://example.com/data/myschema.rfa # Additional types</code></pre>
+<p><em>Support for other namespaces than <code>http://schema.org</code> is planned for future versions but not currently available.</em></p>
+<h2>Enabling PSR-5 PHPDoc support</h2>
+<p>Set the <code>useType</code> option to <code>true</code> and the generator will use the <code>@type</code> annotation (defined in (<a href="https://github.com/php-fig/fig-standards/pull/169">PSR-5</a>)
+instead of the traditional <code>@var</code>.</p>
+<p><em>The current status of PSR-5 is draft and is still subject to major modifications.</em></p>
+<h2>Checking GoodRelation compatibility</h2>
+<p>If the <code>checkIsGoodRelations</code> option is set to <code>true</code>, the generator will emit a warning if an encountered property is not
+par of the <a href="http://www.heppnetz.de/projects/goodrelations/">GoodRelations</a> schema.</p>
+<p>This is useful when generating e-commerce data model.</p>
+<h2>PHP file header</h2>
+<p>Prepend all generated PHP files with a custom comment.</p>
+<p>Example:</p>
+<pre><code class="language-yml">header: |
+  /*
+   * This file is part of the Ecommerce package.
+   *
+   * (c) Kévin Dunglas &lt;dunglas@gmail.com&gt;
+   *
+   * For the full copyright and license information, please view the LICENSE
+   * file that was distributed with this source code.
+   */</code></pre>
+<h2>Full configuration reference</h2>
+<pre><code class="language-yaml"># RDFa files to use
+rdfa:
+
+    # Default:
+    - https://raw.githubusercontent.com/rvguha/schemaorg/master/data/schema.rdfa
+
+# OWL relation files to use
+relations:
+
+    # Default:
+    - http://purl.org/goodrelations/v1.owl
+
+# Debug mode
+debug:                false
+
+# Automatically add an id field to entities
+generateId:           true
+
+# Generate interfaces and use Doctrine's Resolve Target Entity feature
+useInterface:         false
+
+# Use PSR-5's @type annotation instead of @var in the PHPDoc
+useType:              false
+
+# Use Doctrine's ArrayCollection instead of standard arrays
+useDoctrineCollection:  true
+
+# Emit a warning if a property is not derived from GoodRelations
+checkIsGoodRelations:  false
+
+# A license or any text to use as header of generated files
+header:               false # Example: // (c) Kévin Dunglas &lt;dunglas@gmail.com&gt;
+
+# PHP namespaces
+namespaces:
+
+    # The namespace of the generated entities
+    entity:               SchemaOrg\Entity # Example: Acme\Entity
+
+    # The namespace of the generated enumerations
+    enum:                 SchemaOrg\Enum # Example: Acme\Enum
+
+    # The namespace of the generated interfaces
+    interface:            SchemaOrg\Model # Example: Acme\Model
+
+# The value of the phpDoc's @author annotation
+author:               false # Example: Kévin Dunglas &lt;dunglas@gmail.com&gt;
+
+# Visibility of entities fields
+fieldVisibility:      ~ # One of "private"; "protected"; "public"
+
+# Schema.org's types to use
+types:
+
+    # Prototype
+    id:
+
+        # Type namespaces
+        namespaces:
+
+            # The namespace for the generated class (override any other defined namespace)
+            class:                null
+
+            # The namespace for the generated interface (override any other defined namespace)
+            interface:            null
+        doctrine:
+
+            # The Doctrine inheritance mapping type (override the guessed one)
+            inheritanceMapping:   null
+
+        # The parent class, set to false for a top level class
+        parent:               null
+
+        # Properties of this type to use
+        properties:
+
+            # Prototype
+            id:
+
+                # The property range
+                range:                null # Example: Offer
+                cardinality:          ~ # One of "(0..1)"; "(0..*)"; "(1..1)"; "(1..*)"; "unknown"
+
+# Annotation generators to use
+annotationGenerators:
+
+    # Defaults:
+    - SchemaOrgModel\AnnotationGenerator\PhpDocAnnotationGenerator
+    - SchemaOrgModel\AnnotationGenerator\ConstraintAnnotationGenerator
+    - SchemaOrgModel\AnnotationGenerator\DoctrineOrmAnnotationGenerator</code></pre>
+        </section>
+
+    </div>
+</main>
+
+<footer>
+    <div class="container-fluid">
+        <p class="text-muted">
+            Created by <a href="http://dunglas.fr">Kévin Dunglas</a>.
+        </p>
+    </div>
+</footer>
+
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script src="//yastatic.net/highlightjs/8.2/highlight.min.js"></script>
+
+<script>
+    $(function() {
+        $("section>h1").wrap('<div class="page-header" />');
+        // Syntax highlighting
+        hljs.initHighlightingOnLoad();
+    });
+</script>
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-57699833-1', 'auto');
+    ga('send', 'pageview');
+</script>
+
+</body>
+</html>
