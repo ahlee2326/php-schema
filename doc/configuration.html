@@ -171,10 +171,6 @@ to generate the PHP data model of your application.</p>
   - https://raw.githubusercontent.com/rvguha/schemaorg/master/data/schema.rdfa # Experimental version of Schema.org
   - http://example.com/data/myschema.rfa # Additional types</code></pre>
 <p><em>Support for other namespaces than <code>http://schema.org</code> is planned for future versions but not currently available.</em></p>
-<h2>Enabling PSR-5 PHPDoc support</h2>
-<p>Set the <code>useType</code> option to <code>true</code> and the generator will use the <code>@type</code> annotation (defined in (<a href="https://github.com/php-fig/fig-standards/pull/169">PSR-5</a>)
-instead of the traditional <code>@var</code>.</p>
-<p><em>The current status of PSR-5 is draft and is still subject to major modifications.</em></p>
 <h2>Checking GoodRelation compatibility</h2>
 <p>If the <code>checkIsGoodRelations</code> option is set to <code>true</code>, the generator will emit a warning if an encountered property is not
 par of the <a href="http://www.heppnetz.de/projects/goodrelations/">GoodRelations</a> schema.</p>
@@ -212,9 +208,6 @@ generateId:           true
 
 # Generate interfaces and use Doctrine's Resolve Target Entity feature
 useInterface:         false
-
-# Use PSR-5's @type annotation instead of @var in the PHPDoc
-useType:              false
 
 # Use Doctrine's ArrayCollection instead of standard arrays
 useDoctrineCollection:  true
