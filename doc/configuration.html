@@ -67,13 +67,13 @@
 <p>Namespaces of generated PHP classes can be set globally, respectively for entities, enumerations and interfaces (if used
 with Doctrine Resolve Target Entity Listener option).</p>
 <p>Example:</p>
-<pre><code class="language-yml">namespaces:
+<pre><code class="language-yaml">namespaces:
   entity:               "Dunglas\EcommerceBundle\Entity"
   enum:                 "Dunglas\EcommerceBundle\Enum"
   interface:            "Dunglas\EcommerceBundle\Model"</code></pre>
 <p>Namespaces can also be specified for a specific type. It will take precedence over any globally configured namespace.</p>
 <p>Example:</p>
-<pre><code class="language-yml">types:
+<pre><code class="language-yaml">types:
   Thing:
     namespaces:
       entity: "Dunglas\CoreBundle\Entity" # Namespace for the Thing entity (works for enumerations too)
@@ -84,7 +84,7 @@ it will use the first defined type.
 The <code>range</code> option is useful to set the type of a given property. It can also be used to force a type (even if not in the
 Schema.org definition).</p>
 <p>Example:</p>
-<pre><code class="language-yml">types:
+<pre><code class="language-yaml">types:
   Brand:
     properties:
       logo: { range: "ImageObject" } # Force the range of the logo propery to ImageObject (can also be URL according to Schema.org)
@@ -103,7 +103,7 @@ Supported cardinalities are:</p>
 </ul>
 <p>Cardinalities are enforced by the class generator, the Doctrine ORM generator and the Symfony validation generator.</p>
 <p>Example:</p>
-<pre><code class="language-yml">types:
+<pre><code class="language-yaml">types:
   Product:
     properties:
       sku:
@@ -111,7 +111,7 @@ Supported cardinalities are:</p>
 <h2>Forcing (or disabling) a class parent</h2>
 <p>Override the guessed class hierarchy of a given type with this option.</p>
 <p>Example:</p>
-<pre><code class="language-yml">  ImageObject:
+<pre><code class="language-yaml">  ImageObject:
     parent: Thing # Force the parent to be Thing instead of CreativeWork &gt; MediaObject
     properties: ~
   Drug:
@@ -119,39 +119,40 @@ Supported cardinalities are:</p>
 <h2>Author PHPDoc</h2>
 <p>Add a <code>@author</code> PHPDoc annotation to class' DocBlock.</p>
 <p>Example:</p>
-<pre><code class="language-yml">author: "Kévin Dunglas &lt;kevin@les-tilleuls.coop&gt;"</code></pre>
+<pre><code class="language-yaml">author: "Kévin Dunglas &lt;kevin@les-tilleuls.coop&gt;"</code></pre>
 <h2>Disabling generators and creating custom ones</h2>
 <p>By default, all generators are enabled. You can specify the list of generators to use with the <code>generators</code> option.</p>
 <p>Example (enabling only the PHPDoc generator):</p>
-<pre><code class="language-yml">annotationGenerators:
+<pre><code class="language-yaml">annotationGenerators:
     - SchemaOrgModel\AnnotationGenerator\PhpDocAnnotationGenerator</code></pre>
 <p>You can write your generators by implementing the <a href="src/SchemaOrgModel/AnnotationGenerator/AnnotationGeneratorInterface">AnnotationGeneratorInterface</a>.
 The <a href="src/SchemaOrgModel/AnnotationGenerator/AbstractAnnotationGenerator">AbstractAnnotationGenerator</a> provides helper methods
 useful when creating your own generators.</p>
 <p>Enabling a custom generator and the PHPDoc generator:</p>
-<pre><code class="language-yml">annotationGenerators:
+<pre><code class="language-yaml">annotationGenerators:
   - SchemaOrgModel\AnnotationGenerator\PhpDocAnnotationGenerator
   - Acme\Generators\MyGenerator</code></pre>
 <h2>Disabling <code>id</code> generator</h2>
 <p>By default, the generator add a property called <code>id</code> not provided by Schema.org. This useful when using generated entity
 with an ORM or an ODM.
 This behavior can be disabled with the following setting:</p>
-<pre><code class="language-yml">generateId: false</code></pre>
+<pre><code class="language-yaml">generateId: false</code></pre>
 <h2>Disabling usage of Doctrine collection</h2>
 <p>By default, the generator use classes provided by the <a href="https://github.com/doctrine/collections">Doctrine Collections</a> library
 to store collections of entities. This is useful (and required) when using Doctrine ORM or Doctrine ODM.
 This behavior can be disabled (to fallback to standard arrays) with the following setting:</p>
-<pre><code class="language-yml">useDoctrineCollection: false</code></pre>
+<pre><code class="language-yaml">doctrine:
+  useCollection: false</code></pre>
 <h2>Custom field visibility</h2>
 <p>Generated fields have a <code>private</code> visibility and are exposed through getters and setters.
 The default visibility can be changed with the <code>fieldVisibility</code> otion.</p>
 <p>Example:</p>
-<pre><code class="language-yml">fieldVisibility: "protected"</code></pre>
+<pre><code class="language-yaml">fieldVisibility: "protected"</code></pre>
 <h2>Forcing Doctrine inheritance mapping annotation</h2>
 <p>The standard behavior of the generator is to use the <code>@MappedSuperclass</code> Doctrine annotation for classes with children and
 <code>@Entity</code> for classes with no child.</p>
 <p>The inheritance annotation can be forced for a given type like the following:</p>
-<pre><code class="language-yml">types:
+<pre><code class="language-yaml">types:
   Product:
     doctrine:
       inheritanceMapping: "@MappedSuperclass"</code></pre>
@@ -162,12 +163,15 @@ is a feature of Doctrine to keep modules independent. It allows to specify inter
 mappings.</p>
 <p>If you set the option <code>useInterface</code> to true, the generator will generate an interface corresponding to each generated
 entity and will use them in relation mappings.</p>
+<p>To let PHP Schema generating the XML mapping file usable with Symfony add the following to your config file:</p>
+<pre><code class="language-yaml">doctrine:
+  resolveTargetEntityConfigPath: path/to/doctrine.xml</code></pre>
 <h2>Custom schemas</h2>
 <p>The generator can use your own schema definitions. They must be wrote in RDFa and follow the format of the <a href="http://schema.org/docs/schema_org_rdfa.html">Schema.org's
 definition</a>. This is useful to document your <a href="http://schema.org/docs/extension.html">Schema.org extensions</a> and use them
 to generate the PHP data model of your application.</p>
 <p>Example:</p>
-<pre><code class="language-yml">rdfa:
+<pre><code class="language-yaml">rdfa:
   - https://raw.githubusercontent.com/rvguha/schemaorg/master/data/schema.rdfa # Experimental version of Schema.org
   - http://example.com/data/myschema.rfa # Additional types</code></pre>
 <p><em>Support for other namespaces than <code>http://schema.org</code> is planned for future versions but not currently available.</em></p>
@@ -178,7 +182,7 @@ par of the <a href="http://www.heppnetz.de/projects/goodrelations/">GoodRelation
 <h2>PHP file header</h2>
 <p>Prepend all generated PHP files with a custom comment.</p>
 <p>Example:</p>
-<pre><code class="language-yml">header: |
+<pre><code class="language-yaml">header: |
   /*
    * This file is part of the Ecommerce package.
    *
@@ -192,7 +196,7 @@ par of the <a href="http://www.heppnetz.de/projects/goodrelations/">GoodRelation
 rdfa:
 
     # Default:
-    - https://raw.githubusercontent.com/rvguha/schemaorg/master/data/schema.rdfa
+    - http://schema.org/docs/schema_org_rdfa.html
 
 # OWL relation files to use
 relations:
@@ -208,9 +212,6 @@ generateId:           true
 
 # Generate interfaces and use Doctrine's Resolve Target Entity feature
 useInterface:         false
-
-# Use Doctrine's ArrayCollection instead of standard arrays
-useDoctrineCollection:  true
 
 # Emit a warning if a property is not derived from GoodRelations
 checkIsGoodRelations:  false
@@ -229,6 +230,15 @@ namespaces:
 
     # The namespace of the generated interfaces
     interface:            SchemaOrg\Model # Example: Acme\Model
+
+# Doctrine
+doctrine:
+
+    # Use Doctrine's ArrayCollection instead of standard arrays
+    useCollection:        true
+
+    # The Resolve Target Entity Listener config file pass
+    resolveTargetEntityConfigPath:  null
 
 # The value of the phpDoc's @author annotation
 author:               false # Example: Kévin Dunglas &lt;dunglas@gmail.com&gt;
